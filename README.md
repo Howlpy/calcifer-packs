@@ -33,7 +33,7 @@ inside Calcifer with its files, environment and network. Read a pack before you 
 | --- | --- |
 | `index.yaml` | the catalog (schema documented at the top) |
 | `packs/` | official packs, one folder each (`pack.yaml`, `pack.py`, `tests/`, `README.md`) |
-| `scripts/validate_index.py` | schema, commit/path and tree-hash validation used by CI |
+| `scripts/validate_index.py` | schema, commit/path, tree-hash and static pack-check validation used by CI |
 | `.github/workflows/validate.yml` | CI: validates the index and checks every official pack |
 
 ## Validate locally
@@ -42,6 +42,7 @@ inside Calcifer with its files, environment and network. Read a pack before you 
 pip install pyyaml
 python scripts/validate_index.py --offline          # schema only
 python scripts/validate_index.py                    # also clones every entry and checks commit, path and hash
+python scripts/validate_index.py --pack-check       # plus the static `calcifer pack check` on every entry (runs nothing)
 calcifer pack check packs/hello_notes --run         # an official pack: manifest, imports, load and its tests
 ```
 

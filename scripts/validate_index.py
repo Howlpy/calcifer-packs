@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validates index.yaml: schema, and for every entry that its commit and path exist and its tree hash matches.
 
-Usage:  python scripts/validate_index.py [--index index.yaml] [--repo .] [--self-url URL ...] [--offline]
+Usage:  python scripts/validate_index.py [--index index.yaml] [--repo .] [--self-url URL ...] [--offline] [--pack-check]
 
 * Schema checks need only PyYAML.
 * The hash check clones each entry's repository (an entry whose url equals a --self-url is read from this checkout, so
@@ -9,12 +9,15 @@ Usage:  python scripts/validate_index.py [--index index.yaml] [--repo .] [--self
 * The tree hash is Calcifer's own (`calcifer.app.external_packs.tree_hash`) when Calcifer is installed; otherwise the
   vendored copy below, which implements the same algorithm. CI installs Calcifer so the canonical one is used.
 * --offline skips the clone and hash checks (schema only).
+* --pack-check also runs `calcifer pack check <folder>` (static only: never --run, nothing of the pack is executed) on
+  every entry. Needs the `calcifer` CLI on PATH.
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import os
 import re
 import shutil
 import subprocess
@@ -159,7 +162,7 @@ def _git(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str
     return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, timeout=300, check=False)
 
 
-def entry_problems(entry: dict[str, Any], self_urls: list[str], root: Path) -> list[str]:
+def entry_problems(entry: dict[str, Any], self_urls: list[str], root: Path, pack_check: bool = False) -> list[str]:
     who = entry["name"]
     source = str(root) if _norm(entry["url"]) in {_norm(u) for u in self_urls} else entry["url"]
     with tempfile.TemporaryDirectory() as tmp:
@@ -189,7 +192,34 @@ def entry_problems(entry: dict[str, Any], self_urls: list[str], root: Path) -> l
             problems.append(
                 f"{who}: sha256 is {entry['sha256'][:16]}... but the pack at that commit hashes to {actual} ({impl})"
             )
+        if pack_check:
+            problems += _static_pack_check(who, folder)
         return problems
+
+
+def _static_pack_check(who: str, folder: Path) -> list[str]:
+    """`calcifer pack check <folder>` without --run: reads the manifest and parses the code, executes nothing."""
+    exe = shutil.which("calcifer")
+    if not exe:
+        return ["calcifer CLI not found (needed by --pack-check)"]
+    env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+    try:
+        done = subprocess.run(
+            [exe, "pack", "check", str(folder)],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=120,
+            check=False,
+            env=env,
+        )
+    except subprocess.TimeoutExpired:
+        return [f"{who}: pack check failed: timed out after 120s"]
+    if done.returncode:
+        tail = "\n    ".join((done.stdout + done.stderr).strip().splitlines()[-6:])
+        return [f"{who}: pack check failed: {tail}"]
+    return []
 
 
 def main() -> int:
@@ -198,6 +228,7 @@ def main() -> int:
     ap.add_argument("--repo", default=".", help="this repository's checkout (default: the current folder)")
     ap.add_argument("--self-url", action="append", default=[], help="URL that means 'this repository'")
     ap.add_argument("--offline", action="store_true", help="schema only: no clones, no hashes")
+    ap.add_argument("--pack-check", action="store_true", help="also run the static `calcifer pack check` on every entry")
     args = ap.parse_args()
     index = Path(args.index)
     try:
@@ -210,7 +241,7 @@ def main() -> int:
     if not problems and not args.offline:
         root = Path(args.repo).resolve()
         for entry in entries or []:
-            problems += entry_problems(entry, args.self_url, root)
+            problems += entry_problems(entry, args.self_url, root, args.pack_check)
     for p in problems:
         print(f"FAIL: {p}")
     if problems:

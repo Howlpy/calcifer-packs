@@ -27,13 +27,17 @@ jobs:
       - name: Install Calcifer (canonical tree hash and `pack check`)
         run: pip install "calcifer @ git+${CALCIFER_REPO}"
 
-      - name: Index schema, commits, paths and tree hashes
+      # --pack-check runs the static `calcifer pack check` (manifest, imports, entry file; nothing is executed) on every
+      # entry, community packs included.
+      - name: Index schema, commits, paths, tree hashes and static pack check
         run: |
           python scripts/validate_index.py \
             --self-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
-            --self-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+            --self-url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" \
+            --pack-check
 
-      # Only the project's own packs are executed here. Community packs live elsewhere and are never run in CI.
+      # Every entry already got the static check above; only the project's own packs are executed here (--run). Community
+      # packs live elsewhere and are never run in CI.
       - name: Check official packs (manifest, imports, load, tests)
         run: |
           set -e
