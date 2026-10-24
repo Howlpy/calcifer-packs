@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validates index.yaml: schema, and for every entry that its commit and path exist and its tree hash matches.
 
-Usage:  python scripts/validate_index.py [--index index.yaml] [--self-url URL ...] [--offline]
+Usage:  python scripts/validate_index.py [--index index.yaml] [--repo .] [--self-url URL ...] [--offline]
 
 * Schema checks need only PyYAML.
 * The hash check clones each entry's repository (an entry whose url equals a --self-url is read from this checkout, so
@@ -195,6 +195,7 @@ def entry_problems(entry: dict[str, Any], self_urls: list[str], root: Path) -> l
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--index", default="index.yaml")
+    ap.add_argument("--repo", default=".", help="this repository's checkout (default: the current folder)")
     ap.add_argument("--self-url", action="append", default=[], help="URL that means 'this repository'")
     ap.add_argument("--offline", action="store_true", help="schema only: no clones, no hashes")
     args = ap.parse_args()
@@ -207,7 +208,7 @@ def main() -> int:
     entries = raw.get("packs") if isinstance(raw, dict) else None
     problems = schema_problems(entries)
     if not problems and not args.offline:
-        root = index.resolve().parent
+        root = Path(args.repo).resolve()
         for entry in entries or []:
             problems += entry_problems(entry, args.self_url, root)
     for p in problems:
