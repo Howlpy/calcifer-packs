@@ -1,0 +1,17 @@
+name: hello_notes
+version: 0.1.0
+description: A tiny notebook for the owner - add short notes and read the latest ones (the catalog's example pack)
+contract: 1
+min_calcifer: 0.1.0
+language: py
+entry: pack.py
+provides: [tools]
+tools:
+  - {name: hello_notes.add, risk: write}   # asks the owner every time
+  - {name: hello_notes.list, risk: read}
+migrations:
+  - id: "0001"
+    sql: "CREATE TABLE ext_hello_notes_notes (id INTEGER PRIMARY KEY, at TEXT NOT NULL, text TEXT NOT NULL)"
+secrets: []
+bins: []
+network: []
