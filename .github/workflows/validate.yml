@@ -10,7 +10,7 @@ permissions:
 
 env:
   # Placeholder: set to the real repository of Calcifer (the installer's own tree-hash and `pack check` code).
-  CALCIFER_REPO: https://github.com/your-org/calcifer.git
+  CALCIFER_REPO: https://github.com/Howlpy/calcifer.git
 
 jobs:
   validate:

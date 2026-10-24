@@ -19,13 +19,13 @@
 packs:
   - name: hello_notes
     description: A tiny notebook for the owner - add short notes and read the latest ones (the catalog's example pack).
-    url: https://github.com/your-org/calcifer-packs.git
+    url: https://github.com/Howlpy/calcifer-packs.git
     path: packs/hello_notes
     commit: 9d78ecfe7e17dd19196f5a71dc0b73586c0653f6
     sha256: 95d27d7205d9ac6cfd90051e581c5a89c29e0744868734a99e095a73a8aaf949
     min_calcifer: 0.1.0
     contract: 1
-    maintainer: your-org
+    maintainer: Howlpy
     tier: official
     tags: [notes, example]
-    homepage: https://github.com/your-org/calcifer-packs/tree/main/packs/hello_notes
+    homepage: https://github.com/Howlpy/calcifer-packs/tree/main/packs/hello_notes

@@ -1,8 +1,7 @@
 # calcifer-packs
 
-The pack catalog for [Calcifer](https://github.com/your-org/calcifer): an `index.yaml` of third-party packs that
+The pack catalog for [Calcifer](https://github.com/Howlpy/calcifer): an `index.yaml` of third-party packs that
 `calcifer pack search` and `calcifer pack install <name>` read, plus the packs the Calcifer project maintains itself.
-(Placeholders: replace `your-org` with the real GitHub organisation.)
 
 ```bash
 calcifer pack search notes          # name, description, tags; tier, maintainer, compatible with your version
@@ -19,7 +18,7 @@ calcifer pack update hello_notes    # follows the catalog's new commit and shows
 - **Community** packs stay in their authors' repositories and are added by a pull request that changes `index.yaml`
   (`tier: community`). Maintainers review the entry; they do **not** audit the pack's code. Calcifer says so, loudly,
   every time someone installs one.
-- Calcifer reads this catalog from `https://raw.githubusercontent.com/your-org/calcifer-packs/main/index.yaml` by default
+- Calcifer reads this catalog from `https://raw.githubusercontent.com/Howlpy/calcifer-packs/main/index.yaml` by default
   (`catalogs:` in the workspace's `packs.yaml` changes it), caches it for a day and works offline from the cache.
 
 ## What a hash does and does not tell you
