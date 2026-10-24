@@ -1,0 +1,19 @@
+# The Calcifer pack catalog. `calcifer pack search|info|install` read this file.
+#
+# Schema (every field is required; CI rejects unknown fields, bad values and unsorted entries):
+#   name          pack name, as in the pack's pack.yaml (lowercase, digits, _ and -; 2-31 characters)
+#   description   one sentence, at most 300 characters
+#   url           git URL of the repository (https:// or ssh://); official packs use this repository
+#   path          folder inside the repository that holds pack.yaml (official packs: packs/<name>), or null when it
+#                 is the repository root
+#   commit        FULL 40-character lowercase sha. The catalog pins a commit, never a branch
+#   sha256        output of `calcifer pack hash <that folder at that commit>`
+#   min_calcifer  oldest Calcifer release the pack works with (X.Y.Z) or null; must equal the pack's pack.yaml
+#   contract      pack contract version (1); must equal the pack's pack.yaml
+#   maintainer    who answers for the pack (GitHub user or organisation)
+#   tier          official (maintained by the project, lives in packs/) | community (lives in its author's repository)
+#   tags          list of short lowercase words (at most 12)
+#   homepage      https URL or null
+#
+# Entries are sorted by name. Only the project's maintainers add `tier: official`.
+packs: []
